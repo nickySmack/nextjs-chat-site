@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js"; // todo remove htis
+import { Pinecone as PineconeClient } from "@pinecone-database/pinecone"; //todo use this isntead https://js.langchain.com/v0.2/docs/integrations/vectorstores/pinecone
 
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
-import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
+import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase"; // remove this
+import { PineconeStore } from "@langchain/pinecone"; // use this https://js.langchain.com/v0.2/docs/integrations/vectorstores/pinecone
+ // https://js.langchain.com/v0.2/docs/tutorials/rag/#preview
 import { Document } from "@langchain/core/documents";
 import { RunnableSequence } from "@langchain/core/runnables";
 import {
@@ -83,11 +86,14 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_URL!,
       process.env.SUPABASE_PRIVATE_KEY!,
     );
+    const pinecone = new PineconeClient();
     const vectorstore = new SupabaseVectorStore(new OpenAIEmbeddings(), {
       client,
       tableName: "documents",
       queryName: "match_documents",
     });
+    const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
+    
 
     /**
      * We use LangChain Expression Language to compose two chains.
