@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -40,6 +40,7 @@
     "zod-to-json-schema": "^3.21.4"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "prettier": "3.0.0"
   },
   "resolutions": {

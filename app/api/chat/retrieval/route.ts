@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
 
-import { createClient } from "@supabase/supabase-js"; // todo remove htis
+// import { createClient } from "@supabase/supabase-js"; // todo remove htis
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone"; //todo use this isntead https://js.langchain.com/v0.2/docs/integrations/vectorstores/pinecone
 
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
-import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase"; // remove this
+// import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase"; // remove this
 import { PineconeStore } from "@langchain/pinecone"; // use this https://js.langchain.com/v0.2/docs/integrations/vectorstores/pinecone
  // https://js.langchain.com/v0.2/docs/tutorials/rag/#preview
 import { Document } from "@langchain/core/documents";
@@ -82,17 +82,20 @@ export async function POST(req: NextRequest) {
       temperature: 0.2,
     });
 
-    const client = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_PRIVATE_KEY!,
-    );
-    const pinecone = new PineconeClient();
-    const vectorstore = new SupabaseVectorStore(new OpenAIEmbeddings(), {
-      client,
-      tableName: "documents",
-      queryName: "match_documents",
+    // const client = createClient(
+    //   process.env.SUPABASE_URL!,
+    //   process.env.SUPABASE_PRIVATE_KEY!,
+    // );
+    const embeddings = new OpenAIEmbeddings({
+      model: "text-embedding-3-small",
     });
+    const pinecone = new PineconeClient();
     const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
+    const vectorstore = await PineconeStore.fromExistingIndex(embeddings, {
+      pineconeIndex,
+      maxConcurrency: 5
+    });
+    
     
 
     /**
